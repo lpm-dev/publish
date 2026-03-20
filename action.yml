@@ -1,0 +1,72 @@
+name: "LPM.dev Publish"
+description: "Publish packages to LPM with OIDC Trusted Publishers (no secrets) or token auth. Sets up Node.js, installs dependencies, and publishes."
+author: "LPM.dev"
+
+branding:
+  icon: "upload"
+  color: "green"
+
+inputs:
+  oidc:
+    description: "Use OIDC for secret-free authentication (requires id-token: write permission)"
+    required: false
+    default: "true"
+  token:
+    description: "LPM auth token (fallback when OIDC is unavailable)"
+    required: false
+    default: ""
+  node-version:
+    description: "Node.js version to use"
+    required: false
+    default: "22"
+  cli-version:
+    description: "LPM CLI version to install"
+    required: false
+    default: "latest"
+  install-command:
+    description: "Install command to run before publish"
+    required: false
+    default: "npm ci"
+  dry-run:
+    description: "Run publish in dry-run mode (validate without uploading)"
+    required: false
+    default: "false"
+
+runs:
+  using: "composite"
+  steps:
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ inputs.node-version }}
+
+    - name: Install LPM CLI
+      shell: bash
+      run: npm install -g @lpm-registry/cli@${{ inputs.cli-version }}
+
+    - name: Configure LPM registry
+      shell: bash
+      env:
+        LPM_TOKEN: ${{ inputs.token }}
+        INPUT_OIDC: ${{ inputs.oidc }}
+      run: |
+        if [ "$INPUT_OIDC" = "true" ]; then
+          lpm setup --oidc
+        else
+          lpm setup
+        fi
+
+    - name: Install dependencies
+      shell: bash
+      run: ${{ inputs.install-command }}
+
+    - name: Publish to LPM
+      shell: bash
+      env:
+        LPM_TOKEN: ${{ inputs.token }}
+      run: |
+        if [ "${{ inputs.dry-run }}" = "true" ]; then
+          lpm publish --dry-run
+        else
+          lpm publish
+        fi
