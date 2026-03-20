@@ -1,5 +1,5 @@
 name: "LPM.dev Publish"
-description: "Publish packages to LPM with OIDC Trusted Publishers (no secrets) or token auth. Sets up Node.js, installs dependencies, and publishes."
+description: "Publish packages to LPM.dev with OIDC Trusted Publishers — no secrets needed."
 author: "LPM.dev"
 
 branding:
