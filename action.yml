@@ -51,9 +51,9 @@ runs:
         INPUT_OIDC: ${{ inputs.oidc }}
       run: |
         if [ "$INPUT_OIDC" = "true" ]; then
-          lpm setup --oidc
+          lpm setup ci --oidc
         else
-          lpm setup
+          lpm setup ci
         fi
 
     - name: Install dependencies
